@@ -2,6 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\File;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ParentIdBaseRequest extends FormRequest
@@ -31,7 +35,7 @@ class ParentIdBaseRequest extends FormRequest
             'parent_id' => [
                 Rule::exists(File::class, 'id')
                 ->where(function(Builder $query){
-                    return $query->where('is_folder', '=' '1')
+                    return $query->where('is_folder', '=', '1')
                     ->where('created_by', '=', Auth::id());
                 })
             ]
