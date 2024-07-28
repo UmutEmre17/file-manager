@@ -44,8 +44,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {router} from "@inertiajs/vue3";
 
-const {files} = defineProps({
-    files: Object
+
+
+
+const {$files} = defineProps({
+    files: Object,
 })
 
 function openFolder(file) {

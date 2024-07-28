@@ -23,9 +23,10 @@ class StoreFolderRequest extends ParentIdBaseRequest
         return array_merge(parent::rules(),
             [
                 'name' => [
-                    'required',
+                    'required', 'unique:files',
                      Rule::unique(File::class, 'name')
                         ->where('created_by', Auth::id())
+                        ->where('parent_id', $this->input('parent_id'))
                         ->whereNull('deleted_at')
                         
                 ],
