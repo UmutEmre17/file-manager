@@ -10,9 +10,17 @@ use App\Http\Resources\FileResource;
 
 class FileController extends Controller
 {
-    public function myFiles()
+    public function myFiles(string $folder = null)
     {
-        $folder = $this->getRoot();
+        if ($folder) {
+            $folder = File::query()->where('created_by',Auth::id())
+            ->where('path', $folder)
+            ->firstOrFail();
+        }
+        if(!$folder){
+            $folder = $this->getRoot();
+        }
+        
 
         $files = File::query()
         ->where('parent_id', $folder->id)
@@ -36,13 +44,13 @@ class FileController extends Controller
             $parent = $this->getRoot();
         }
 
-        \Log::info('Creating folder', ['data' => $data, 'parent_id' => $parent->id]);
+        
         $file = new File();
         $file->is_folder = 1;
         $file->name = $data['name'];
 
         $parent->appendNode($file);
-        \Log::info('Parent ID in controller:', ['parent_id' => $request->input('parent_id')]);
+        
     }
 
     private function getRoot()
