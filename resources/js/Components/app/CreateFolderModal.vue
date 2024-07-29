@@ -44,11 +44,10 @@ import {nextTick, ref} from "vue";
 
 const form = useForm({
     name: '',
-   
-   
+    parent_id: null
 })
-const page = usePage();
 
+const page = usePage();
 
 const folderNameInput = ref(null)
 
@@ -63,7 +62,7 @@ function onShow() {
 const emit = defineEmits(['update:modelValue'])
 
 function createFolder() {
-   
+   form.parent_id = page.props.folder.id
     form.post(route('folder.create'), {
         preserveScroll: true,
         onSuccess:() => {
