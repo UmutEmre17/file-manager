@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Http\Requests\StoreFolderRequest;
+use App\Http\Requests\StoreFileRequest;
 use Illuminate\Http\Request;
 use App\Models\File;
 use Illuminate\Support\Facades\Auth;
@@ -57,9 +58,63 @@ class FileController extends Controller
         
     }
 
+    public function store(StoreFileRequest $request)
+    {
+        $data= $request->validated();
+        $fileTree = $request->file_tree;
+        $parent = $request->parent;
+        $user = $request->user();
+        
+        if($parent) {
+            $parent  = $this->getRoot();
+        }
+        if (!empty($fileTree)) {
+            $this->saveFileTree($fileTree, $parent, $user);
+        }else {
+            foreach ( $data['files'] as $file) {
+                /** @var \Illuminate\Http\UploadedFile $file */
+
+                $this->saveFile($file, $user, $parent);
+            }
+        }
+    }
+
     private function getRoot()
     {
         return File::query()->whereIsRoot()->where('created_by', Auth::id())->firstOrFail();
+    }
+
+    public function saveFileTree($fileTree,$parent,$user)
+    {
+        foreach ($fileTree as $name => $file) {
+            if(is_array($file)) {
+                $folder = new File();
+                $folder->is_folder = 1;
+                $folder->name = $name;
+
+                $parent->appendNode($folder);
+                $this->saveFileTree($file, $folder, $user);
+            } else {
+                $this->saveFile($file, $user, $parent);
+            }
+        }
+    }
+
+    private function saveFile($file, $user, $parent): void
+    {
+        $path = $file->store('/files/' . $user->id, 'local');
+
+        $model = new File();
+        $model->storage_path = $path;
+        $model->is_folder = false;
+        $model->name = $file->getClientOriginalName();
+        $model->mime = $file->getMimeType();
+        $model->size = $file->getSize();
+        
+
+        $parent->appendNode($model);
+
+       
     }
 
 }

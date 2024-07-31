@@ -31,8 +31,10 @@ import SearchForm from "@/Components/app/SearchForm.vue";
 import UserSettingsDropdown from "@/Components/app/UserSettingsDropdown.vue";
 import {emitter, FILE_UPLOAD_STARTED} from "@/event-bus.js";
 import { onMounted, ref } from "vue";
+import {useForm, usePage} from "@inertiajs/vue3";
 
 const dragOver = ref(false)
+const page = usePage();
 
 function ondDragOver(){
     dragOver.value = true
@@ -45,15 +47,25 @@ function onDragLeave(){
 function handleDrop(ev){
     dragOver.value = false;
     const files = ev.dataTransfer.files
-    console.log(files)
+    
     if (!files.length){
         return 
     }
     uploadFiles(files)
 }
 
+const fileUploadForm = useForm({
+    files: [],
+    relative_paths: [],
+    parent_id: null
+})
+
 function uploadFiles(files){
-    console.log(files)
+   fileUploadForm.parent_id = page.props.folder.id
+   fileUploadForm.files = files
+   fileUploadForm.relative_paths = [...files].map(f=> f.webkitRelativePath)
+
+   fileUploadForm.post(route('file.store'))
 }
 
 onMounted(()=>{
