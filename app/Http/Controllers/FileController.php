@@ -65,7 +65,7 @@ class FileController extends Controller
         $parent = $request->parent;
         $user = $request->user();
         
-        if($parent) {
+        if(!$parent) {
             $parent  = $this->getRoot();
         }
         if (!empty($fileTree)) {
