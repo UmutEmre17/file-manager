@@ -22,7 +22,6 @@ class FileController extends Controller
             $folder = $this->getRoot();
         }
         
-
         $files = File::query()
         ->where('parent_id', $folder->id)
         ->where('created_by', Auth::id())
