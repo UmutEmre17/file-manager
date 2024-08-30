@@ -103,6 +103,27 @@ class FileController extends Controller
         }
     }
 
+    public function destroy(DestroyFilesRequest $request)
+    {
+        $data = $request->validated();
+        $parent = $request->parent;
+
+        if ($data['all']) {
+            $children = $parent->children;
+
+            foreach ($children as $child) {
+                $child->delete();
+            }
+        } else {
+            foreach ($data['ids'] ?? [] as $id) {
+                $file = File::find($id);
+                $file->delete();
+            }
+        }
+
+       return to_route('myFiles', ['folder' => $parent->path]);
+    }
+
     private function saveFile($file, $user, $parent): void
     {
         $path = $file->store('/files/' . $user->id, 'local');
